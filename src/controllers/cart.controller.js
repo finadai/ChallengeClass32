@@ -1,14 +1,17 @@
 const Cart = require('../models/cart');
 const Ticket = require('../models/ticket');
-const Product = require('../models/product');
+const Product = require('../models/product.js');
+const errorCodes = require('../utils/errorCodes');
 
-exports.purchase = async (req, res) => {
+exports.purchase = async (req, res, next) => {
     const { cid } = req.params;
 
     try {
         const cart = await Cart.findById(cid).populate('products.product');
         if (!cart) {
-            return res.status(404).json({ message: 'Carrito no encontrado' });
+            const error = new Error('Cart not found');
+            error.code = 'CART_NOT_FOUND';
+            throw error;
         }
 
         const unavailableProducts = [];
@@ -37,7 +40,6 @@ exports.purchase = async (req, res) => {
 
         res.status(200).json({ ticket, unavailableProducts });
     } catch (error) {
-        console.error('Error en la compra:', error);
-        res.status(500).json({ message: 'Error en el servidor' });
+        next(error);
     }
 };

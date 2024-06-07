@@ -3,12 +3,14 @@ const session = require('express-session');
 const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo');
 const handlebars = require('express-handlebars');
-const port = 9095;
+const port = 9097;
 const sessionsRouter = require("./src/routes/sessions.router");
 const viewsRouter = require("./src/routes/views.router");
 const cartsRouter = require("./src/routes/carts.router");
+const mockingRouter = require("./src/routes/mocking.router");
 const passport = require('passport');
 const dotenv = require('dotenv');
+const errorHandler = require('./src/middleware/errorHandler');
 
 const config = require('./src/config');
 const authorize = require('./src/middleware/auth');
@@ -46,5 +48,8 @@ app.set('view engine', 'handlebars');
 app.use('/api/sessions', sessionsRouter);
 app.use('/', viewsRouter);
 app.use('/api/carts', authorize('user'), cartsRouter);
+app.use('/', mockingRouter);
+
+app.use(errorHandler);
 
 app.listen(port, () => console.log(`up and running on port ${port}`));
